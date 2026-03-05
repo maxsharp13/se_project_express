@@ -3,13 +3,14 @@ const mongoose = require('mongoose');
 
 const usersRouter = require('./routes/users');
 const clothingItemsRouter = require('./routes/clothingItems');
+const { NOT_FOUND } = require('./utils/errors');
 
 const app = express();
 const { PORT = 3001 } = process.env;
 
 app.use(express.json());
 
-mongoose.connect('mongodb+srv://maxsharpnack_db_user:GEWLM98WPvy1b7yF@cluster0.opycxjw.mongodb.net/?appName=Cluster0');
+mongoose.connect('mongodb://127.0.0.1:27017/wtwr_db');
 
 app.use((req, res, next) => {
   req.user = {
@@ -22,7 +23,7 @@ app.use('/users', usersRouter);
 app.use('/items', clothingItemsRouter);
 
 app.use((req, res) => {
-  res.status(404).send({ message: 'Requested resource not found' });
+  res.status(NOT_FOUND).send({ message: 'Requested resource not found' });
 });
 
 app.listen(PORT, () => {
