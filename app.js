@@ -1,23 +1,28 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 
 const usersRouter = require('./routes/users');
 const clothingItemsRouter = require('./routes/clothingItems');
+
+const { login, createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
+
 const { NOT_FOUND } = require('./utils/errors');
 
 const app = express();
 const { PORT = 3001 } = process.env;
 
+app.use(cors());
 app.use(express.json());
 
 mongoose.connect('mongodb://127.0.0.1:27017/wtwr_db');
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '69a8ce2114f80f5301a6b818',
-  };
-  next();
-});
+app.post('/signin', login);
+app.post('/signup', createUser);
+app.get('/items', clothingItemsRouter);
+
+app.use(auth);
 
 app.use('/users', usersRouter);
 app.use('/items', clothingItemsRouter);
