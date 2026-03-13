@@ -31,27 +31,33 @@ module.exports.createClothingItem = (req, res) => {
     });
 };
 
+const { FORBIDDEN, NOT_FOUND } = require('../utils/errors');
+
 module.exports.deleteClothingItem = (req, res) => {
-  ClothingItem.findById(req.params.itemId)
-    .orFail(() => {
-      const error = new Error('Item ID not found');
-      error.statusCode = NOT_FOUND;
-      throw error;
+  const { itemId } = req.params;
+
+  ClothingItem.findById(itemId)
+    .orFail()
+    .then((item) => {
+      if (!item.owner.equals(req.user._id)) {
+        return res.status(FORBIDDEN).send({
+          message: 'You are not allowed to delete this item',
+        });
+      }
+
+      return ClothingItem.findByIdAndDelete(itemId)
+        .then((deletedItem) => res.send(deletedItem));
     })
-    .then((item) => ClothingItem.findByIdAndDelete(item._id))
-    .then((deletedItem) => res.send(deletedItem))
     .catch((err) => {
-      console.error(err);
-
-      if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST).send({ message: 'Invalid item id' });
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(NOT_FOUND).send({
+          message: 'Item not found',
+        });
       }
 
-      if (err.statusCode === NOT_FOUND) {
-        return res.status(NOT_FOUND).send({ message: 'Item not found' });
-      }
-
-      return res.status(SERVER_ERROR).send({ message: 'An error has occurred on the server.' });
+      return res.status(500).send({
+        message: 'An error has occurred on the server',
+      });
     });
 };
 

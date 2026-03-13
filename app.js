@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const usersRouter = require('./routes/users');
 const clothingItemsRouter = require('./routes/clothingItems');
+const { getClothingItems } = require('./controllers/clothingItems');
 
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -20,7 +21,8 @@ mongoose.connect('mongodb://127.0.0.1:27017/wtwr_db');
 
 app.post('/signin', login);
 app.post('/signup', createUser);
-app.get('/items', clothingItemsRouter);
+
+app.get('/items', getClothingItems);
 
 app.use(auth);
 

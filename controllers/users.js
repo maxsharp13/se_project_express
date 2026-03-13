@@ -4,10 +4,19 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { JWT_SECRET } = require('../utils/config');
 
+const {
+  BAD_REQUEST,
+  UNAUTHORIZED,
+  NOT_FOUND,
+  CONFLICT,
+  INTERNAL_SERVER_ERROR,
+} = require('../utils/errors');
 
-// CREATE USER
+
 module.exports.createUser = (req, res) => {
-  const { name, avatar, email, password } = req.body;
+  const {
+    name, avatar, email, password,
+  } = req.body;
 
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
@@ -24,15 +33,20 @@ module.exports.createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        return res.status(409).send({ message: 'Email already exists' });
+        return res.status(CONFLICT).send({ message: 'Email already exists' });
       }
 
-      return res.status(400).send({ message: 'Invalid user data' });
+      if (err.name === 'ValidationError') {
+        return res.status(BAD_REQUEST).send({ message: 'Invalid user data' });
+      }
+
+      return res.status(INTERNAL_SERVER_ERROR).send({
+        message: 'An error has occurred on the server',
+      });
     });
 };
 
 
-// LOGIN
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
 
@@ -46,21 +60,36 @@ module.exports.login = (req, res) => {
 
       res.send({ token });
     })
-    .catch(() => {
-      res.status(401).send({ message: 'Incorrect email or password' });
+    .catch((err) => {
+      if (err.message === 'Incorrect email or password') {
+        return res.status(UNAUTHORIZED).send({
+          message: 'Incorrect email or password',
+        });
+      }
+
+      return res.status(INTERNAL_SERVER_ERROR).send({
+        message: 'An error has occurred on the server',
+      });
     });
 };
 
 
-// GET CURRENT USER
 module.exports.getCurrentUser = (req, res) => {
   User.findById(req.user._id)
+    .orFail()
     .then((user) => res.send(user))
-    .catch(() => res.status(404).send({ message: 'User not found' }));
+    .catch((err) => {
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(NOT_FOUND).send({ message: 'User not found' });
+      }
+
+      return res.status(INTERNAL_SERVER_ERROR).send({
+        message: 'An error has occurred on the server',
+      });
+    });
 };
 
 
-// UPDATE PROFILE
 module.exports.updateProfile = (req, res) => {
   const { name, avatar } = req.body;
 
@@ -69,12 +98,19 @@ module.exports.updateProfile = (req, res) => {
     { name, avatar },
     { new: true, runValidators: true },
   )
-    .then((user) => {
-      if (!user) {
-        return res.status(404).send({ message: 'User not found' });
+    .orFail()
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(BAD_REQUEST).send({ message: 'Invalid data' });
       }
 
-      return res.send(user);
-    })
-    .catch(() => res.status(400).send({ message: 'Invalid data' }));
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(NOT_FOUND).send({ message: 'User not found' });
+      }
+
+      return res.status(INTERNAL_SERVER_ERROR).send({
+        message: 'An error has occurred on the server',
+      });
+    });
 };
