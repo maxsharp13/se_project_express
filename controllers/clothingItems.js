@@ -10,10 +10,15 @@ const {
 
 module.exports.getClothingItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.send(items))
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({
-      message: 'An error has occurred on the server',
-    }));
+    .then((items) => {
+      res.send(items);
+    })
+    .catch((err) => {
+      console.error('🔥 getClothingItems error:', err); // <-- KEY LINE
+      res.status(INTERNAL_SERVER_ERROR).send({
+        message: 'An error has occurred on the server',
+      });
+    });
 };
 
 
@@ -28,6 +33,8 @@ module.exports.createClothingItem = (req, res) => {
   })
     .then((item) => res.status(201).send(item))
     .catch((err) => {
+      console.error('🔥 createClothingItem error:', err);
+
       if (err.name === 'ValidationError') {
         return res.status(BAD_REQUEST).send({
           message: 'Invalid data',
@@ -57,6 +64,8 @@ module.exports.deleteClothingItem = (req, res) => {
         .then((deletedItem) => res.send(deletedItem));
     })
     .catch((err) => {
+      console.error('🔥 deleteClothingItem error:', err);
+
       if (err.name === 'DocumentNotFoundError') {
         return res.status(NOT_FOUND).send({
           message: 'Item not found',
@@ -87,6 +96,8 @@ module.exports.likeItem = (req, res) => {
     .orFail()
     .then((item) => res.send(item))
     .catch((err) => {
+      console.error('🔥 likeItem error:', err);
+
       if (err.name === 'DocumentNotFoundError') {
         return res.status(NOT_FOUND).send({
           message: 'Item not found',
@@ -105,7 +116,7 @@ module.exports.likeItem = (req, res) => {
     });
 };
 
-
+// 🔥 DISLIKE ITEM
 module.exports.dislikeItem = (req, res) => {
   const { itemId } = req.params;
 
@@ -117,6 +128,8 @@ module.exports.dislikeItem = (req, res) => {
     .orFail()
     .then((item) => res.send(item))
     .catch((err) => {
+      console.error('🔥 dislikeItem error:', err);
+
       if (err.name === 'DocumentNotFoundError') {
         return res.status(NOT_FOUND).send({
           message: 'Item not found',
