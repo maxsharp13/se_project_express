@@ -1,9 +1,38 @@
-# WTWR (What to Wear?): Back End
-The back-end project is focused on creating a server for the WTWR application. You’ll gain a deeper understanding of how to work with databases, set up security and testing, and deploy web applications on a remote machine. The eventual goal is to create a server with an API and user authorization.
-## Running the Project
-`npm run start` — to launch the server 
+# WTWR — What To Wear (Full Stack)
 
-`npm run dev` — to launch the server with the hot reload feature
+WTWR is a full-stack application that helps users decide what to wear based on current weather conditions. The app integrates a React frontend with an Express/MongoDB backend and uses authentication to manage user-specific clothing items.
 
-### Testing
-Before committing your code, make sure you edit the file `sprint.txt` in the root folder. The file `sprint.txt` should contain the number of the sprint you're currently working on. For ex. 12
+## Features
+
+- User authentication (sign up / log in with JWT)
+- Add, delete, and like clothing items
+- Protected profile route
+- Edit user profile (name & avatar)
+- Interactive clothing cards with modal preview
+- Responsive layout based on Figma designs
+- API integration with backend server
+
+## Tech Stack
+
+Frontend:
+- React
+- Vite
+- JavaScript (ES6+)
+- CSS (BEM methodology)
+
+Backend:
+- Node.js
+- Express
+- MongoDB (Mongoose)
+- JWT Authentication
+
+## Project Links
+
+Frontend Repo:
+https://github.com/maxsharp13/se_project_react
+
+Backend Repo:
+https://github.com/maxsharp13/se_project_express
+
+Project Domain:
+https://w2wrmax.mooo.com/
