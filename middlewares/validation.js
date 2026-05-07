@@ -25,3 +25,8 @@ const validateItem = celebrate({
     imageUrl: Joi.string().required().custom(validateURL),
   }),
 });
+
+module.exports = {
+  validateCreateUser,
+  validateItem,
+};
