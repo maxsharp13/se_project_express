@@ -1,48 +1,27 @@
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi } = require("celebrate");
+const validator = require("validator");
 
-const objectIdPattern = /^[0-9a-fA-F]{24}$/;
+function validateURL(value, helpers) {
+  if (validator.isURL(value)) {
+    return value;
+  }
 
-const validateObjectId = celebrate({
-  params: Joi.object().keys({
-    itemId: Joi.string().pattern(objectIdPattern).required(),
-  }),
-});
+  return helpers.error("string.uri");
+}
 
 const validateCreateUser = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
-    avatar: Joi.string().uri().required(),
-    email: Joi.string().email().required(),
+    name: Joi.string().min(2).max(30),
+    avatar: Joi.string().custom(validateURL).required(),
+    email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
 });
 
-const validateLogin = celebrate({
+const validateItem = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
+    name: Joi.string().required().min(2).max(30),
+    weather: Joi.string().required(),
+    imageUrl: Joi.string().required().custom(validateURL),
   }),
 });
-
-const validateUpdateProfile = celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
-    avatar: Joi.string().uri().required(),
-  }),
-});
-
-const validateCreateItem = celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
-    imageUrl: Joi.string().uri().required(),
-    weather: Joi.string().valid('hot', 'warm', 'cold').required(),
-  }),
-});
-
-module.exports = {
-  validateObjectId,
-  validateCreateUser,
-  validateLogin,
-  validateUpdateProfile,
-  validateCreateItem,
-};

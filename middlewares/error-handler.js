@@ -9,6 +9,4 @@ module.exports = (err, req, res, next) => {
       : err.message;
 
   res.status(statusCode).send({ message });
-
-  return next();
 };
