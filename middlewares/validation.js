@@ -18,7 +18,21 @@ const validateCreateUser = celebrate({
   }),
 });
 
-const validateItem = celebrate({
+const validateLogin = celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+});
+
+const validateUpdateProfile = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    avatar: Joi.string().required().custom(validateURL),
+  }),
+});
+
+const validateCreateItem = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     weather: Joi.string().required(),
@@ -26,7 +40,17 @@ const validateItem = celebrate({
   }),
 });
 
+const validateObjectId = celebrate({
+  params: Joi.object().keys({
+    itemId: Joi.string().hex().length(24),
+    userId: Joi.string().hex().length(24),
+  }),
+});
+
 module.exports = {
   validateCreateUser,
-  validateItem,
+  validateLogin,
+  validateUpdateProfile,
+  validateCreateItem,
+  validateObjectId,
 };
